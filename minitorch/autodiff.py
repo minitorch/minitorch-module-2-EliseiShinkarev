@@ -22,7 +22,11 @@ def central_difference(f: Any, *vals: Any, arg: int = 0, epsilon: float = 1e-6) 
     Returns:
         An approximation of $f'_i(x_0, \ldots, x_{n-1})$
     """
-    raise NotImplementedError("Need to include this file from past assignment.")
+    # TODO: Implement for Task 1.1.
+    # raise NotImplementedError("Need to implement for Task 1.1")
+    vals_eps = list(vals)
+    vals_eps[arg] += epsilon
+    return (f(*vals_eps) - f(*vals)) / (epsilon) 
 
 
 variable_count = 1
@@ -60,8 +64,22 @@ def topological_sort(variable: Variable) -> Iterable[Variable]:
     Returns:
         Non-constant Variables in topological order starting from the right.
     """
-    raise NotImplementedError("Need to include this file from past assignment.")
+    visited = set()
+    stack = []
 
+    def DFS(current_node: Variable) -> None:
+        if current_node.unique_id in visited:
+            return
+        if current_node.is_constant():
+            return
+        visited.add(current_node.unique_id)
+        for neig in current_node.parents:
+            DFS(neig)
+        if current_node.is_constant() is False:
+            stack.append(current_node)
+
+    DFS(variable)
+    return reversed(stack)
 
 def backpropagate(variable: Variable, deriv: Any) -> None:
     """
@@ -72,9 +90,18 @@ def backpropagate(variable: Variable, deriv: Any) -> None:
         variable: The right-most variable
         deriv  : Its derivative that we want to propagate backward to the leaves.
 
-    No return. Should write to its results to the derivative values of each leaf through `accumulate_derivative`.
+    No return. Should write to its results to the derivative values of each leaf through accumulate_derivative.
     """
-    raise NotImplementedError("Need to include this file from past assignment.")
+    derivative = {variable.unique_id: deriv}
+    for var in topological_sort(variable):
+        d_output = derivative.get(var.unique_id, 0)
+        if var.is_leaf():
+            var.accumulate_derivative(d_output)
+        else:
+            for inpt, current_deriv in var.chain_rule(d_output):
+                if inpt.unique_id not in derivative:
+                    derivative[inpt.unique_id] = 0
+                derivative[inpt.unique_id] += current_deriv
 
 
 @dataclass
