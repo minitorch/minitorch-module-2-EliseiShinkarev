@@ -31,11 +31,23 @@ class Module:
 
     def train(self) -> None:
         "Set the mode of this module and all descendent modules to `train`."
-        raise NotImplementedError("Need to include this file from past assignment.")
+        # raise NotImplementedError("Need to include this file from past assignment.")
+        def set_train_mode(module) -> None:
+            module.training = True
+            for cur_module in module.modules():
+                set_train_mode(cur_module)
+
+        set_train_mode(self)
 
     def eval(self) -> None:
         "Set the mode of this module and all descendent modules to `eval`."
-        raise NotImplementedError("Need to include this file from past assignment.")
+        # raise NotImplementedError("Need to include this file from past assignment.")
+        def set_eval_mode(module) -> None:
+            module.training = False
+            for cur_module in module.modules():
+                set_eval_mode(cur_module)
+
+        set_eval_mode(self)
 
     def named_parameters(self) -> Sequence[Tuple[str, Parameter]]:
         """
@@ -45,11 +57,19 @@ class Module:
         Returns:
             The name and `Parameter` of each ancestor parameter.
         """
-        raise NotImplementedError("Need to include this file from past assignment.")
+        # raise NotImplementedError("Need to include this file from past assignment.")
+        def collect_parameters(module, cur_name=""):
+            for name, param in module._parameters.items():
+                yield cur_name + name, param
+            for name, module in module._modules.items():
+                yield from collect_parameters(module, cur_name + name + ".")
+
+        return list(collect_parameters(self))
 
     def parameters(self) -> Sequence[Parameter]:
         "Enumerate over all the parameters of this module and its descendents."
-        raise NotImplementedError("Need to include this file from past assignment.")
+        # raise NotImplementedError("Need to include this file from past assignment.")
+        return [params for name, params in self.named_parameters()]
 
     def add_parameter(self, k: str, v: Any) -> Parameter:
         """

@@ -269,7 +269,15 @@ def tensor_map(fn: Callable[[float], float]) -> Any:
         in_strides: Strides,
     ) -> None:
         # TODO: Implement for Task 2.3.
-        raise NotImplementedError("Need to implement for Task 2.3")
+        # raise NotImplementedError("Need to implement for Task 2.3")
+        in_idx = np.zeros_like(in_shape, dtype=int)
+        out_idx = np.zeros_like(out_shape, dtype=int)
+        for i in range(0, len(out)):
+            to_index(i, out_shape, out_idx)
+            broadcast_index(out_idx, out_shape, in_shape, in_idx)
+            idx_to_pos_in = index_to_position(in_idx, in_strides)
+            idx_to_pos_out = index_to_position(out_idx, out_strides)
+            out[idx_to_pos_out] = fn(in_storage[idx_to_pos_in])
 
     return _map
 
@@ -319,7 +327,21 @@ def tensor_zip(fn: Callable[[float, float], float]) -> Any:
         b_strides: Strides,
     ) -> None:
         # TODO: Implement for Task 2.3.
-        raise NotImplementedError("Need to implement for Task 2.3")
+        # raise NotImplementedError("Need to implement for Task 2.3")
+        a_idx = np.zeros_like(a_shape, dtype=int)
+        b_idx = np.zeros_like(b_shape, dtype=int)
+        out_idx = np.zeros_like(out_shape, dtype=int)
+        for i in range(0, len(out)):
+            to_index(i, out_shape, out_idx)
+            broadcast_index(out_idx, out_shape, a_shape, a_idx)
+            idx_to_pos_a = index_to_position(a_idx, a_strides)
+            broadcast_index(out_idx, out_shape, b_shape, b_idx)
+            idx_to_pos_b = index_to_position(b_idx, b_strides)
+            idx_to_pos_out = index_to_position(out_idx, out_strides)
+            a = a_storage[idx_to_pos_a]
+            b = b_storage[idx_to_pos_b]
+
+            out[idx_to_pos_out] = fn(a, b)
 
     return _zip
 
@@ -355,7 +377,17 @@ def tensor_reduce(fn: Callable[[float, float], float]) -> Any:
         reduce_dim: int,
     ) -> None:
         # TODO: Implement for Task 2.3.
-        raise NotImplementedError("Need to implement for Task 2.3")
+        # raise NotImplementedError("Need to implement for Task 2.3")
+        # a_idx = np.zeros_like(a_shape, dtype=int)
+        out_idx = np.zeros_like(out_shape, dtype=int)
+        for i in range(0, len(out)):
+            to_index(i, out_shape, out_idx)
+            for j in range(a_shape[reduce_dim]):
+                out_idx[reduce_dim] = j
+                idx_to_pos_out = index_to_position(out_idx, out_strides)
+                idx_to_pos_a = index_to_position(out_idx, a_strides)
+                a_store = a_storage[idx_to_pos_a]
+                out[i] = fn(a_store, out[i])
 
     return _reduce
 
